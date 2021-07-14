@@ -80,7 +80,7 @@ public class DataSource {
         try{
         	
             
-            conn = IAMAuroraConnector.getConnectionUsingIam();
+            //conn = IAMAuroraConnector.getConnectionUsingIam();
         }
         catch(Exception e) {
             e.printStackTrace();

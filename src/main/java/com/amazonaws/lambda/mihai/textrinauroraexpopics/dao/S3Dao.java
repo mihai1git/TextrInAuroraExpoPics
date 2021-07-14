@@ -59,7 +59,7 @@ public class S3Dao implements FileSystemDao {
     		//writeToS3Txt(s3ObjectBucket, s3ObjectName, rawShortResult);
     		
             
-    	}  catch (IOException ex) {
+    	}  catch (Exception ex) {
 	    	ex.printStackTrace();
 	    	throw new RuntimeException(ex);
 	    }
@@ -72,7 +72,7 @@ public class S3Dao implements FileSystemDao {
      * @param blocks
      * @throws IOException
      */
-    private void writeToS3Json(String s3ObjectBucket, String s3ObjectName, List<Block> blocks) throws IOException  {
+    private void writeToS3Json(String s3ObjectBucket, String s3ObjectName, List<Block> blocks) throws IOException, AmazonServiceException  {
     	
     	String jsonResult = getExtractionAsJson(s3ObjectName, blocks);
 	 	
@@ -98,14 +98,7 @@ public class S3Dao implements FileSystemDao {
        String jsonFileName = getJsonFileName(s3ObjectName);
        handlerContext.getLogger().log("Writing to: " + s3ObjectBucket + "/" + jsonFileName);
        
-       try {
-           s3Client.putObject(s3ObjectBucket, jsonFileName, is, meta);
-       }
-       catch(AmazonServiceException ex1)
-       {
-       	ex1.printStackTrace();
-           throw new RuntimeException(ex1);
-       }
+       s3Client.putObject(s3ObjectBucket, jsonFileName, is, meta);
      
     }
     
@@ -116,7 +109,7 @@ public class S3Dao implements FileSystemDao {
      * @param rawShortResult
      * @throws IOException
      */
-    private void writeToS3Txt(String s3ObjectBucket, String s3ObjectName, String rawShortResult) throws IOException  {
+    private void writeToS3Txt(String s3ObjectBucket, String s3ObjectName, String rawShortResult) throws IOException, AmazonServiceException  {
        
      //2.raw TXT file
     	ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -135,14 +128,7 @@ public class S3Dao implements FileSystemDao {
        String txtFileName = getTxtFileName(s3ObjectName);
        handlerContext.getLogger().log("Writing to: " + s3ObjectBucket + "/" + txtFileName);
        
-       try {
-           s3Client.putObject(s3ObjectBucket, txtFileName, is, meta);
-       }
-       catch(AmazonServiceException ex1)
-       {
-       	ex1.printStackTrace();
-           throw new RuntimeException(ex1);
-       }
+       s3Client.putObject(s3ObjectBucket, txtFileName, is, meta);
     }
     
 
@@ -197,6 +183,20 @@ public class S3Dao implements FileSystemDao {
     	return scan;
     }
     
+    /**
+     * extract file name without extension
+     * @param s3ObjectName
+     * @return
+     */
+    private String getNoExtFileName (String s3ObjectName) {
+		 Matcher matcher = Pattern.compile(".*\\.([^\\.]*)").matcher(s3ObjectName);
+         if (!matcher.matches()) {
+        	 System.out.println("Unable to infer image type for key " + s3ObjectName);
+             throw new RuntimeException("Unable to infer image type for key "+ s3ObjectName);
+         }
+         String imageType = matcher.group(1);
+         return s3ObjectName.substring(0, matcher.start(1));
+    }
     
     /**
      * convert key from image name to json name
@@ -204,13 +204,7 @@ public class S3Dao implements FileSystemDao {
      * @return
      */
     public String getJsonFileName (String s3ObjectName) {
-		 Matcher matcher = Pattern.compile(".*\\.([^\\.]*)").matcher(s3ObjectName);
-         if (!matcher.matches()) {
-        	 System.out.println("Unable to infer image type for key " + s3ObjectName);
-             throw new RuntimeException("Unable to infer image type for key "+ s3ObjectName);
-         }
-         String imageType = matcher.group(1);
-         return s3ObjectName.substring(0, matcher.start(1)) + "json";
+    	return getNoExtFileName(s3ObjectName) + "json";
     }
 
     
@@ -220,13 +214,7 @@ public class S3Dao implements FileSystemDao {
      * @return
      */
     private String getTxtFileName (String s3ObjectName) {
-		 Matcher matcher = Pattern.compile(".*\\.([^\\.]*)").matcher(s3ObjectName);
-         if (!matcher.matches()) {
-        	 System.out.println("Unable to infer image type for key " + s3ObjectName);
-             throw new RuntimeException("Unable to infer image type for key "+ s3ObjectName);
-         }
-         String imageType = matcher.group(1);
-         return s3ObjectName.substring(0, matcher.start(1)) + "txt";
+    	return getNoExtFileName(s3ObjectName) + "txt";
     }
     
     /**
@@ -235,13 +223,7 @@ public class S3Dao implements FileSystemDao {
      * @return
      */
     public String getJpgFileName (String s3ObjectName) {
-		 Matcher matcher = Pattern.compile(".*\\.([^\\.]*)").matcher(s3ObjectName);
-         if (!matcher.matches()) {
-        	 System.out.println("Unable to infer image type for key " + s3ObjectName);
-             throw new RuntimeException("Unable to infer image type for key "+ s3ObjectName);
-         }
-         String imageType = matcher.group(1);
-         return s3ObjectName.substring(0, matcher.start(1)) + "jpg";
+    	return getNoExtFileName(s3ObjectName) + "jpg";
     }
     
     /**
