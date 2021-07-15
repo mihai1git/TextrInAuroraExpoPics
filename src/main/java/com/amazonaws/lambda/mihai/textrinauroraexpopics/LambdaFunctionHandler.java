@@ -57,7 +57,6 @@ public class LambdaFunctionHandler implements RequestHandler<S3Event, String> {
      */
     public LambdaFunctionHandler() {
     	AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-    	.withRegion(Regions.US_EAST_2)
 		.withRequestHandlers(new TracingHandler(AWSXRay.getGlobalRecorder()))//add X-Ray option
 		.build();
     	((S3Dao)s3Dao).setS3Client(s3Client);

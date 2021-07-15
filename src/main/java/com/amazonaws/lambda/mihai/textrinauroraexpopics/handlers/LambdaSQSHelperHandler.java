@@ -12,13 +12,8 @@ import java.util.concurrent.Future;
 
 import javax.management.RuntimeErrorException;
 
-import com.amazonaws.client.builder.AwsAsyncClientBuilder;
-import com.amazonaws.client.builder.AwsClientBuilder;
-import com.amazonaws.regions.Region;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.AWSLambdaAsync;
 import com.amazonaws.services.lambda.AWSLambdaAsyncClientBuilder;
-import com.amazonaws.services.lambda.AWSLambdaClientBuilder;
 import com.amazonaws.services.lambda.model.InvokeRequest;
 import com.amazonaws.services.lambda.model.InvokeResult;
 import com.amazonaws.services.lambda.runtime.Context;
@@ -39,13 +34,6 @@ public class LambdaSQSHelperHandler implements RequestStreamHandler {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     
     private Context handlerContext;
-    
-    private AWSLambdaAsync lambda = null;
-    
-    public LambdaSQSHelperHandler() {
-    	lambda = AWSLambdaAsyncClientBuilder.defaultClient();
-    	lambda.setRegion(Region.getRegion(Regions.US_EAST_2));
-    }
 
     @Override
     public void handleRequest(InputStream input, OutputStream output, Context context) throws IOException {
@@ -95,6 +83,7 @@ public class LambdaSQSHelperHandler implements RequestStreamHandler {
      */
     private void invokeAsynchronously(String functionName, String functionInput) {
     	
+    	AWSLambdaAsync lambda = AWSLambdaAsyncClientBuilder.defaultClient();
         InvokeRequest req = new InvokeRequest()
             .withFunctionName(functionName)
             .withPayload(ByteBuffer.wrap(functionInput.getBytes()));
@@ -140,7 +129,6 @@ public class LambdaSQSHelperHandler implements RequestStreamHandler {
             
         } catch (InterruptedException | ExecutionException e) {
         	handlerContext.getLogger().log(e.getMessage());
-        	Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
     }
