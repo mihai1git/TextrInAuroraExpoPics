@@ -13,7 +13,6 @@ import com.amazonaws.lambda.mihai.textrinauroraexpopics.dao.S3Dao;
 import com.amazonaws.lambda.mihai.textrinauroraexpopics.model.ImageTextExtraction;
 import com.amazonaws.lambda.mihai.textrinauroraexpopics.model.PageBuilder;
 import com.amazonaws.lambda.mihai.textrinauroraexpopics.model.Scan;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
@@ -45,7 +44,6 @@ public class LambdaS3ToDbHandler implements RequestHandler<S3Event, String> {
      */
     public LambdaS3ToDbHandler() {
     	AmazonS3 s3Client = AmazonS3ClientBuilder.standard()
-    	.withRegion(Regions.US_EAST_2)
 		.withRequestHandlers(new TracingHandler(AWSXRay.getGlobalRecorder()))//add X-Ray option
 		.build();
     	
