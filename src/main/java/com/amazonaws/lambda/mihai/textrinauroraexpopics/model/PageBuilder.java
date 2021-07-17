@@ -27,29 +27,35 @@ public class PageBuilder {
 	private final SimpleDateFormat dateFormatterCode = new SimpleDateFormat("yyyyMMdd");
 	DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern( "yyyy.MM.dd" );
 	
-	private final String expoLocation;
+	private String expoLocation;
 	
-	private final String expoName;
-	private final String expoDateStr;
-	private final Date expoDate;
-	private final String expoCode;
+	private String expoName;
+	private String expoDateStr;
+	private Date expoDate;
+	private String expoCode;
 	
-	private final String docFormat;
-	private final Integer docCode;
+	private String docFormat;
+	private Integer docCode;
 	
-	private final String pageType;
-	private final Integer pageNumber;
+	private String pageType;
+	private Integer pageNumber;
 	private Integer pageSection;// this is not final in case of Visiting Card where are more in one scan => are split
 		
 	private Integer docNumPages;// this is not final in case of Visiting Card where this is always set to 1
-	private final String docCompany;
+	private String docCompany;
 	private List<String> companyAssociations;
 	
-	private final String docContentType;
+	private String docContentType;
 	
 	private String s3Bucket;
 
 	private Scan scan;
+	
+	// taken from database
+	private Integer expoId;
+	private Integer documentId;
+	private Integer companyId;
+	private Integer pageId;
 	
 	public PageBuilder (String s3Key) {
 				
@@ -79,7 +85,7 @@ public class PageBuilder {
 			
 		} catch (DateTimeParseException e) {
 			e.printStackTrace();
-			throw new RuntimeException("Malformed key name (expo date) for key "+ s3Key);
+			throw new RuntimeException("Malformed key name (expo date) for key "+ s3Key, e);
 		}
 				
 		String fileName = s3KeyParts[s3KeyParts.length - 1].substring(0, s3KeyParts[s3KeyParts.length - 1].lastIndexOf('.'));
@@ -95,6 +101,33 @@ public class PageBuilder {
 			throw new RuntimeException("Malformed file name for key "+ s3Key);
 		}
 		
+		setCommonParts(fileNameParts);
+		
+		if ("covf".equals(pageType) && Integer.valueOf(1).equals(pageNumber)) {
+						
+			setCoverFaceSpecialParts(fileNameParts);
+			
+			if (docNumPages == null || docCompany == null) {
+				throw new RuntimeException("Malformed file name (unexpected FRONT COVER parts number) for key "+ s3Key);
+			}
+			
+		} else {
+			if (fileNameParts.length > 3) {
+				throw new RuntimeException("Malformed file name (unexpected parts number: > 3) for key "+ s3Key);
+			}
+		}
+		
+		if (expoCode == null || docFormat == null || docCode == null || pageType == null || pageNumber == null) {
+			throw new RuntimeException("Malformed file name (unexpected COMMON parts number) for key "+ s3Key);
+		}
+	}
+	
+	/**
+	 * set file name parts that exists for all files
+	 * @param fileNameParts
+	 */
+	private void setCommonParts(String[] fileNameParts) {
+		
 		expoCode = fileNameParts[0];
 		
 		if (!dateFormatterCode.format(expoDate).equals(expoCode.substring(0, 8))) {
@@ -107,55 +140,42 @@ public class PageBuilder {
 		pageType = fileNameParts[2].split("-")[0];
 		pageNumber = new Integer(fileNameParts[2].split("-")[1]);
 		pageSection = (fileNameParts[2].split("-").length > 2) ? new Integer(fileNameParts[2].split("-")[2]) : null;
-		
-		if ("covf".equals(pageType) && Integer.valueOf(1).equals(pageNumber)) {
-						
-			if (!"visit".equals(docFormat) && !(fileNameParts.length > 4)) {
-				throw new RuntimeException("Malformed file name (unexpected parts number: <= 4) for key "+ s3Key);
-			}
-			
-			if (fileNameParts.length > 3) {
-				
-				docNumPages = new Integer(fileNameParts[3].split("-")[1]);
-				
-			} else {
-				docNumPages = null;
-			}
-			
-			if (fileNameParts.length > 4) {
-				
-				String docCompanies = fileNameParts[4].split("-")[1];
-				
-				if (docCompanies.contains(";")) {
-					String[] companies = docCompanies.split(";");
-					docCompany = companies[0];
-					companyAssociations = Arrays.asList(Arrays.copyOfRange(companies, 1, companies.length));
-					
-				} else {
-					docCompany = docCompanies;
-				}
-				
-			} else {
-				docCompany = null;
-			}
-			
-			if (fileNameParts.length > 5) {
-				docContentType = fileNameParts[5].split("-")[1];
-				
-			} else {
-				docContentType = null;
-			}
-			
-		} else {
-			if (fileNameParts.length > 3) {
-				throw new RuntimeException("Malformed file name (unexpected parts number: > 3) for key "+ s3Key);
-			}
-			docNumPages = null;
-			docCompany = null;
-			docContentType = null;
+	}
+	
+	/**
+	 * set file name parts that exists only for front cover
+	 * @param fileNameParts
+	 */
+	private void setCoverFaceSpecialParts(String[] fileNameParts) {
+		 
+		if (!"visit".equals(docFormat) && !(fileNameParts.length > 4)) {
+			throw new RuntimeException("Malformed file name (unexpected parts number: <= 4) for key "+ s3Key);
 		}
 		
+		if (fileNameParts.length > 3) {
+			
+			docNumPages = new Integer(fileNameParts[3].split("-")[1]);
+			
+		}
 		
+		if (fileNameParts.length > 4) {
+			
+			String docCompanies = fileNameParts[4].split("-")[1];
+			
+			if (docCompanies.contains(";")) {
+				String[] companies = docCompanies.split(";");
+				docCompany = companies[0];
+				companyAssociations = Arrays.asList(Arrays.copyOfRange(companies, 1, companies.length));
+				
+			} else {
+				docCompany = docCompanies;
+			}
+			
+		}
+		
+		if (fileNameParts.length > 5) {
+			docContentType = fileNameParts[5].split("-")[1];
+		}
 	}
 
 	
@@ -309,4 +329,46 @@ public class PageBuilder {
 	public String getDocCompany() {
 		return docCompany;
 	}
+
+
+	public Integer getExpoId() {
+		return expoId;
+	}
+
+
+	public void setExpoId(Integer expoId) {
+		this.expoId = expoId;
+	}
+
+
+	public Integer getDocumentId() {
+		return documentId;
+	}
+
+
+	public void setDocumentId(Integer documentId) {
+		this.documentId = documentId;
+	}
+
+
+	public Integer getCompanyId() {
+		return companyId;
+	}
+
+
+	public void setCompanyId(Integer companyId) {
+		this.companyId = companyId;
+	}
+
+
+	public Integer getPageId() {
+		return pageId;
+	}
+
+
+	public void setPageId(Integer pageId) {
+		this.pageId = pageId;
+	}
+	
+	
 }
