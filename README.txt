@@ -1,5 +1,18 @@
 Proof of Concept for ​Amazon Web Services, Lambda Service
 
+Application business:
+Upload scanned promotional documents, from different exhibitions, into Amazon Cloud, S3 service. 
+Extract text from scanned documents, and insert it into a database, using Amazon AWS managed services: S3, Textract, Lambda and Aurora.
+
+Using machine learning, the application gains access to the information contained in the documents, gathering information about the companies that promote those documents. 
+The intelligent document processing is done using Textract built-in machine learning algorithms for optical character recognition (OCR).
+
+To find insights and relationships in extracted text, another module uses regular expressions. 
+The module found in 10 000 extracted lines, around 1300 company info from the following categories: phone, address, mail, site url, contact info, social media url.
+
+Machine learning is a technology that has an increased usability in many companies, where it leads to an increased productivity. 
+The application contains one of the top use cases that is used by companies in production environments: extracting and analyzing data from documents.
+
 Components
 
 The application is built from several AWS Services and custom Lambda microservices. In the picture, the components are:
@@ -20,7 +33,7 @@ The application is built from several AWS Services and custom Lambda microservic
 
 8. Lambda function that transfers JSON files into Amazon Aurora database: com.amazonaws.lambda.mihai.textrinauroraexpopics.handlers.LambdaS3ToDbHandler 
 
-9. Amazon Aurora database: a cloud specific database with MySQL engine and manged by AWS
+9. Amazon Aurora database: a cloud specific database with MySQL engine and managed by AWS
 
 10. Amazon SNS sends error messages from LambdaS3ToDbHandler to the administrator
 
