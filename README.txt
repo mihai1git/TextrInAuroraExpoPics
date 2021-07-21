@@ -15,7 +15,7 @@ The application contains one of the top use cases that is used by companies in p
 
 Components
 
-The application is built from several AWS Services and custom Lambda microservices. In the picture, the components are:
+The application is built from several AWS Services and custom Lambda microservices. In the picture (see ApplicationDescription.html), the components are:
 
 1. Users upload scaned documents as images in the Amazon Cloud, using the Amazon Web Console, in an internet browser
 
