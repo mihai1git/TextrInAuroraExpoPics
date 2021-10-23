@@ -43,8 +43,9 @@ public class LambdaSQSHelperHandler implements RequestStreamHandler {
     private AWSLambdaAsync lambda = null;
     
     public LambdaSQSHelperHandler() {
-    	lambda = AWSLambdaAsyncClientBuilder.defaultClient();
-    	lambda.setRegion(Region.getRegion(Regions.US_EAST_2));
+    	lambda = AWSLambdaAsyncClientBuilder.standard()
+    			.withRegion(Regions.US_EAST_2)
+    			.build();
     }
 
     @Override
