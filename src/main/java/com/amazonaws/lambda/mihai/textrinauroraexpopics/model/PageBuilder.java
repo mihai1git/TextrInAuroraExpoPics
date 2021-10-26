@@ -95,7 +95,7 @@ public class PageBuilder {
 			throw new RuntimeException("Malformed file name (unexpected parts number) for key "+ s3Key);
 		}
 		
-		Pattern fileAllParts = Pattern.compile("^[0-9]{9}_[a-z]+-[0-9]+_[a-z]+-[0-9]+(?:-[0-9]+)?(?:_pagn-[0-9]+)?(?:_co-[a-z0-9,;]+)?(?:_typec-[a-z]+)?$");
+		Pattern fileAllParts = Pattern.compile("^[0-9]{9}_[a-z]+-[0-9]+_[a-z]+-[0-9]+(?:-[0-9]+)?(?:_pagn-[0-9]+)?(?:_co-[a-z0-9,;&]+)?(?:_typec-[a-z]+)?$");
 		
 		if (!fileAllParts.matcher(fileName).matches()) {
 			throw new RuntimeException("Malformed file name for key "+ s3Key);

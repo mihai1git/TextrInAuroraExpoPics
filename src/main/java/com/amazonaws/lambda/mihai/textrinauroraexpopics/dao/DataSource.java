@@ -14,8 +14,21 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 public class DataSource {
 
 	//database link taken from AWS console
-	protected static final String AURORA_URL = "jdbc:mysql://scans.c5ktggqvzn4c.us-east-2.rds.amazonaws.com:3306/expo_ml_scans";
+	protected static final String AURORA_URL;
+	//protected static final String AURORA_URL = "jdbc:mysql://scans.c5ktggqvzn4c.us-east-2.rds.amazonaws.com:3306/expo_ml_scans";
 	//protected static final String AURORA_URL = "jdbc:mysql://localhost:3306/expo_ml_scans";
+	protected static final String AURORA_USER;
+	protected static final String AURORA_PASS;
+	
+	static {
+		AURORA_URL = System.getenv("AURORA_URL");
+		AURORA_USER = System.getenv("AURORA_USER");
+		AURORA_PASS = System.getenv("AURORA_PASS");
+		
+//		AURORA_URL = "jdbc:mysql://localhost:3306/expo_ml_scans";
+//		AURORA_USER = "root";
+//		AURORA_PASS = "";
+	}
 	
     /**
      * 
@@ -29,10 +42,8 @@ public class DataSource {
         	DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
             mysqlDs = new MysqlDataSource();
             mysqlDs.setURL(AURORA_URL);
-            mysqlDs.setUser("admin");
-            mysqlDs.setPassword("12Mihai34");
-//            mysqlDs.setUser("root");//localhost
-//            mysqlDs.setPassword("");//localhost
+            mysqlDs.setUser(AURORA_USER);
+            mysqlDs.setPassword(AURORA_PASS);
             mysqlDs.setLoginTimeout(5);
 
             //mysqlDs.setConnectionLifecycleInterceptors("com.amazonaws.xray.sql.mysql.TracingInterceptor");
@@ -56,8 +67,8 @@ public class DataSource {
         try{
         	Class.forName("software.aws.rds.jdbc.Driver");
             Properties mysqlConnectionProperties = new Properties();
-            mysqlConnectionProperties.setProperty("user","admin");
-            mysqlConnectionProperties.setProperty("password","12Mihai34");
+            mysqlConnectionProperties.setProperty("user",AURORA_USER);
+            mysqlConnectionProperties.setProperty("password",AURORA_PASS);
             
             DriverManager.registerDriver(new com.mysql.cj.jdbc.Driver());
             conn = DriverManager.getConnection(AURORA_URL, mysqlConnectionProperties);

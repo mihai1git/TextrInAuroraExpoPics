@@ -182,12 +182,20 @@ public class AuroraDao {
     	
         PreparedStatement preparedStatement = null;
         ResultSet resultSet = null;
-        Statement statement = conn.createStatement();
+        
+        PreparedStatement psLock = null;
+        ResultSet rsLock = null;
+        psLock = conn.prepareStatement("select DOC_ID, DOC_NUM_PAGES from tab_documents docs where EXPO_ID = ? and DOC_CODE = ? FOR UPDATE");
+        psLock.setInt(1, pageData.getExpoId());
+        psLock.setInt(2, pageData.getDocCode());
+        rsLock = psLock.executeQuery();
 		
 		preparedStatement = conn.prepareStatement("select DOC_ID, DOC_NUM_PAGES, FMT_CODE from tab_documents docs, tab_doc_format_types dtypes where docs.DOC_FORMAT_ID = dtypes.FMT_ID and EXPO_ID = ? and DOC_CODE = ?");
+		
 		preparedStatement.setInt(1, pageData.getExpoId());
 		preparedStatement.setInt(2, pageData.getDocCode());
 		resultSet = preparedStatement.executeQuery();
+		
 		if (resultSet.next()) {
 			docId = resultSet.getInt(1);
 			Integer docNumPages = resultSet.getInt(2);

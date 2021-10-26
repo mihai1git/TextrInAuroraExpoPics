@@ -32,9 +32,9 @@ public class LambdaFunctionInvoker {
     	handler.setS3Dao(new DiskDao());
     	
     	// build notification event
-    	S3BucketEntity s3Bucket = new S3BucketEntity("pics-repository", new UserIdentityEntity("root"), "");
+    	S3BucketEntity s3Bucket = new S3BucketEntity("pics-repository-textract", new UserIdentityEntity("root"), "");
     	//S3ObjectEntity s3Obj = new S3ObjectEntity("romexpo/2019.01.01_diverse/201901011_visit-20_covf-1_pagn-1_co-kitchenshop;pentrugatit.jpg", new Long(123), "tag", "v1", "12469879491984");
-    	S3ObjectEntity s3Obj = new S3ObjectEntity("romexpo/2019.02.01_diverse/201902011_book-103_about-2.jpg", new Long(123), "tag", "v1", "12469879491984");
+    	S3ObjectEntity s3Obj = new S3ObjectEntity("romexpo/2020.03.01_diverse/202003011_visit-305_covf-1_pagn-1_co-m&c,business.json", new Long(123), "tag", "v1", "12469879491984");
     	S3Entity s3Entity = new S3Entity("local", s3Bucket, s3Obj, "local");
     	
     	S3EventNotificationRecord msg = new S3EventNotificationRecord("US-EAST-2", "S3", "S3", "2021-06-30T01:20", "v1", new RequestParametersEntity("localhost"), new ResponseElementsEntity("0", "0"), s3Entity, new UserIdentityEntity("root"));
